@@ -1,0 +1,167 @@
+{
+  "model": "Qwen3-TTS Base 1.7B",
+  "referenceSha256": "d2799d22d920afd7a349bd665f7c020c8513c891f12ee035944cc4c16c1b4944",
+  "engine": "qwen3-tts",
+  "namespace": "child-v7",
+  "generationMode": "regenerated_from_approved_synthetic_reference",
+  "generator": {
+    "path": "D:/AI/Qwen3-TTS/generate_local.py",
+    "sha256": "78d45809fa286a9f95da014a5d9311b74bfe7a3241e7c20e4706753cc9339a3b",
+    "model": "Qwen3-TTS Base 1.7B",
+    "device": "cpu",
+    "dtype": "float32",
+    "threads": 2,
+    "attention": "sdpa",
+    "seed": 42,
+    "maxNewTokens": 256,
+    "streaming": false,
+    "referenceText": "还没有可用时间，先去奖励小屋兑换哦。"
+  },
+  "phraseManifest": {
+    "path": "work/followup/voice-v7/phrases-child-v7.json",
+    "sha256": "90e31f946045cc575a4a5c1df1d06c02eb2b523232279d13e26c948a51bdc8cb",
+    "count": 26
+  },
+  "generationRun": {
+    "logPath": "work/followup/voice-v7/logs/generate-child-v7.stdout.log",
+    "logSha256": "d25be6314bdb53ba7373fe29471d746f2ab3727c2f8bb137110a32a2b119287f",
+    "exitCode": 0,
+    "requested": 26,
+    "attempted": 26,
+    "failed": [],
+    "determinismNote": "A fresh seed-42 CPU run generated these files; the approved deterministic settings reproduced the existing child-v6 byte hashes. No child-v6 file was copied."
+  },
+  "subjectiveListening": "not_performed",
+  "assets": [
+    {
+      "text": "主动开始写作业",
+      "path": "/audio/child-v7/template-00.wav",
+      "sha256": "ba4cd0b3ebbd33ccd2bfd23436d0da0a31a34459bd990f36a4b7e2ed0ceee4b6"
+    },
+    {
+      "text": "完成一段专注学习",
+      "path": "/audio/child-v7/template-01.wav",
+      "sha256": "5e7c0c617962f281aea1c5cd2339af17a0db83d3345c787bf8a32ceb766943fe"
+    },
+    {
+      "text": "到时间主动结束游戏",
+      "path": "/audio/child-v7/template-02.wav",
+      "sha256": "55ee4f32d567b8bf7353362a86b54e55d60c1f10babc87d379f5db75ab70c79f"
+    },
+    {
+      "text": "整理玩具或书桌",
+      "path": "/audio/child-v7/template-03.wav",
+      "sha256": "a2fa02685b270e09daf900a24370e43e72285dbba6e92fe26e32e73e359fd3e2"
+    },
+    {
+      "text": "自主阅读",
+      "path": "/audio/child-v7/template-04.wav",
+      "sha256": "f2342d8e540e66e22305ceed0049cf7b6c6a3218f84d1a968a97f93739be8fd2"
+    },
+    {
+      "text": "按时睡觉",
+      "path": "/audio/child-v7/template-05.wav",
+      "sha256": "58c6355da2d71ea8a16c4042162340788c64bbb1ee00b85172838b2d73d229db"
+    },
+    {
+      "text": "运动或户外活动",
+      "path": "/audio/child-v7/template-06.wav",
+      "sha256": "92bfa43e66605a36b0082e9ecba239c5cb3d9f29ce922f910d54a3293735f402"
+    },
+    {
+      "text": "睡觉",
+      "path": "/audio/child-v7/habit-00.wav",
+      "sha256": "96256d9f150fb89c71ea07dede0f5bdfe44f2c350561793c68d7bbc66ce452c7"
+    },
+    {
+      "text": "看望爷爷",
+      "path": "/audio/child-v7/habit-01.wav",
+      "sha256": "a5a13ec432441adb1468cbb9892fa6d363d6dd25f602ccb9c72cb36507c2ec8b"
+    },
+    {
+      "text": "自己穿好衣服",
+      "path": "/audio/child-v7/habit-02.wav",
+      "sha256": "67686a976d9963d0bb1e48e3e2ad29847cbf534aca798bbdbb8635a8479defe2"
+    },
+    {
+      "text": "早晨刷牙、洗脸",
+      "path": "/audio/child-v7/habit-03.wav",
+      "sha256": "5a602662512c645b8af40bb68fc950671f22a85452d3b745f14e2d52e128def4"
+    },
+    {
+      "text": "水杯、书包放到门口",
+      "path": "/audio/child-v7/habit-04.wav",
+      "sha256": "2022ae808c2837034c15596afccd5c2ff403d47e1795422960d59638b4b13319"
+    },
+    {
+      "text": "玩好后送玩具回家",
+      "path": "/audio/child-v7/habit-05.wav",
+      "sha256": "61eba3eec11f9c200507b0d569edacc04d709286ef9f15dea88831e48fbc454e"
+    },
+    {
+      "text": "完成一件小家务",
+      "path": "/audio/child-v7/habit-06.wav",
+      "sha256": "450d6c2c959f040a0b32052227bc8402b1d900122fe3ffeb5b3fec62f4555527"
+    },
+    {
+      "text": "坐在餐桌前吃饭",
+      "path": "/audio/child-v7/habit-07.wav",
+      "sha256": "e4ec5a22ff05bb02f619837496c9910fd38fe0c2c25accc8ecd078affaa0d124"
+    },
+    {
+      "text": "睡前刷牙、洗脸",
+      "path": "/audio/child-v7/habit-08.wav",
+      "sha256": "558bb1aa89ea7b6be3b977bef0a2872c6cc23fce73d2bbf959128f26014f776b"
+    },
+    {
+      "text": "到约定时间开始睡前准备",
+      "path": "/audio/child-v7/habit-09.wav",
+      "sha256": "81a25d7e77fa098000c49eb468b511235c19f14dff30be2dd85ab243adf52777"
+    },
+    {
+      "text": "刷牙",
+      "path": "/audio/child-v7/habit-10.wav",
+      "sha256": "fc2fb74866d8a9f480d148cffa74a9fd7b7308a8df0145b9593b38633bf1f1c8"
+    },
+    {
+      "text": "洗脸",
+      "path": "/audio/child-v7/habit-11.wav",
+      "sha256": "cceea239aa6f047470b2edf4a88d4da065d05e0552d1cecbfe3392ba9eb36639"
+    },
+    {
+      "text": "吃饭",
+      "path": "/audio/child-v7/habit-12.wav",
+      "sha256": "4c12adaa246273eeeb1aadc398669e2d157ccee9777f95bd3dc64596f17ac3ae"
+    },
+    {
+      "text": "整理书包",
+      "path": "/audio/child-v7/habit-13.wav",
+      "sha256": "e24eae4b040fb44cf243bc4a32af9a119b406651a3840c7a69114fd97236b413"
+    },
+    {
+      "text": "收拾玩具",
+      "path": "/audio/child-v7/habit-14.wav",
+      "sha256": "c3a14939cce95cf4c9900f145a8e3596e899299c34726ba27899807a3d2bcbd4"
+    },
+    {
+      "text": "阅读",
+      "path": "/audio/child-v7/habit-15.wav",
+      "sha256": "9d4e63388a04977041c71f1e1e29b0f5bcdb2e1450ca263201d607fd8bb83faf"
+    },
+    {
+      "text": "写作业",
+      "path": "/audio/child-v7/habit-16.wav",
+      "sha256": "23e44ac8939b6b9c2f4539695a4ef763731ce08fec1436da7f83fd117db8abe8"
+    },
+    {
+      "text": "运动",
+      "path": "/audio/child-v7/habit-17.wav",
+      "sha256": "63e087f04a391c19959abbeacc6be5d85fbe51230e9004be1313f551fd21ea97"
+    },
+    {
+      "text": "喝水",
+      "path": "/audio/child-v7/habit-18.wav",
+      "sha256": "5062e66844153a50ee0f8b7036f371ffb2cd9177ad897490c0ced93299fd733e"
+    }
+  ]
+}

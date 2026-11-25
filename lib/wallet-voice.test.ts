@@ -1,0 +1,8 @@
+import {expect,it} from 'vitest';
+import {walletVoiceGate,NO_WALLET_TIME,NEVER_REDEEMED_TIME,UNKNOWN_WALLET_TIME,trustedTvStart} from './wallet-start-balance';
+it('uses only complete no-record history and known zero for never-redeemed',()=>{expect(walletVoiceGate(0,[],'c','d')).toBe(NEVER_REDEEMED_TIME);expect(walletVoiceGate(0,undefined,'c','d')).toBe(NO_WALLET_TIME);expect(walletVoiceGate(undefined,[],'c','d')).toBe(UNKNOWN_WALLET_TIME)});
+it('past cancelled/pending/approved never claims never or exhausted',()=>{for(const status of ['approved','pending','rejected'])expect(walletVoiceGate(0,[{child_id:'c',device_id:'d',kind:'device_time',status,cancelled_at:'date'}],'c','d')).toBe(NO_WALLET_TIME)});
+it('no evidence uses neutral and positive wallet unaffected',()=>{expect(walletVoiceGate(0,[{child_id:'c'}],'c','d')).toBe(NO_WALLET_TIME);expect(walletVoiceGate(60,[],'c','d')).toBe('')});
+const req={id:'s',childId:'c',deviceId:'d'},s={id:'s',child_id:'c',device_id:'d',state:'active',remote:{started_at:10,ends_at:30}};
+it('requires request and trusted active receipt, not queue or load',()=>{expect(trustedTvStart(s,req,20000)).toBe(true);expect(trustedTvStart(s,null,20000)).toBe(false);for(const state of ['pending','ended'])expect(trustedTvStart({...s,state},req,20000)).toBe(false)});
+it('rejects other child/device/session missing clock/receipt and ended time',()=>{for(const bad of [{...s,id:'old'},{...s,child_id:'other'},{...s,device_id:'other'},{...s,remote:undefined}])expect(trustedTvStart(bad,req,20000)).toBe(false);expect(trustedTvStart(s,req,null)).toBe(false);expect(trustedTvStart(s,req,30000)).toBe(false)});

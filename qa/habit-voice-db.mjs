@@ -1,0 +1,42 @@
+import pg from 'pg';import assert from 'node:assert/strict';import {randomUUID} from 'node:crypto';
+const db=new pg.Client({connectionString:process.env.DATABASE_ADMIN_URL});await db.connect();
+const u=randomUUID(),f=randomUUID(),a=randomUUID(),b=randomUUID(),h=randomUUID();
+await db.query("INSERT INTO auth.users(id,email,password_hash) VALUES($1,'voice@test.test','unused')",[u]);
+await db.query("INSERT INTO public.families(id,owner_id,name) VALUES($1,$2,'Synthetic')",[f,u]);
+await db.query("INSERT INTO public.children(id,family_id,nickname) VALUES($1,$3,'A'),($2,$3,'B')",[a,b,f]);
+await db.query("INSERT INTO public.habits(id,family_id,child_id,name) VALUES($1,$2,$3,'Synthetic habit')",[h,f,a]);
+async function read(child=a,user=u){await db.query('BEGIN');try{await db.query('SET LOCAL ROLE authenticated');await db.query("SELECT set_config('request.child_browser_hash',$1,true)",['a'.repeat(64)]);await db.query("SELECT set_config('request.jwt.claim.sub',$1,true)",[user]);const r=(await db.query('SELECT public.habit_voice_read($1,$2) r',[h,child])).rows[0].r;await db.query('COMMIT');return r;}catch(e){await db.query('ROLLBACK');throw e}}
+async function work(p){await db.query('BEGIN');try{await db.query('SET LOCAL ROLE growth_voice_worker');const r=(await db.query('SELECT public.habit_voice_work($1) r',[p])).rows[0].r;await db.query('COMMIT');return r;}catch(e){await db.query('ROLLBACK');throw e}}
+await assert.rejects(read(),/child_unlock_required/);
+await db.query("INSERT INTO private.child_credentials(child_id,family_id,password_hash,password_cipher) VALUES($1,$2,'fixture','fixture')",[a,f]);
+await db.query("INSERT INTO private.child_access_sessions(browser_hash,family_id,child_id,credential_version,expires_at) VALUES($1,$2,$3,1,now()+interval '1 hour')",['a'.repeat(64),f,a]);
+await work({action:'heartbeat',state:'waiting_resources'});
+assert.equal((await read()).worker_state,'waiting_resources');
+await work({action:'heartbeat',state:'available'});
+assert.equal((await read()).worker_state,'available');
+await assert.rejects(work({action:'heartbeat',state:'nonsense'}),/invalid_state/);
+await db.query("UPDATE private.habit_voice_worker_health SET seen_at=now()-interval '6 minutes'");
+assert.equal((await read()).worker_state,'offline');
+assert.equal((await read()).state,'pending');
+await assert.rejects(read(b),/habit_not_found/);await assert.rejects(read(a,randomUUID()));
+const j=await work({action:'claim'});assert.equal(j.text,'Synthetic habit');
+const cas={job_id:j.job_id,revision:j.revision,lease_token:j.lease_token};
+assert.equal((await work({action:'claim'})).state,'empty');
+await assert.rejects(work({action:'complete',...cas,lease_token:randomUUID(),audio_base64:''}),/lease_conflict/);
+await assert.rejects(work({action:'complete',...cas,audio_base64:''}),/invalid_audio/);
+const wav=Buffer.alloc(46);wav.write('RIFF');wav.writeUInt32LE(38,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(24000,24);wav.writeUInt32LE(48000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(2,40);
+const bad=Buffer.from(wav);bad.writeUInt16LE(3,20);await assert.rejects(work({action:'complete',...cas,audio_base64:bad.toString('base64')}),/invalid_audio/);
+assert.equal((await work({action:'complete',...cas,audio_base64:wav.toString('base64')})).committed,true);
+assert.equal((await work({action:'status',...cas})).committed,true);
+assert.equal((await work({action:'complete',...cas,audio_base64:wav.toString('base64')})).committed,true);
+const other=Buffer.from(wav);other[44]=1;await assert.rejects(work({action:'complete',...cas,audio_base64:other.toString('base64')}),/audio_conflict/);assert.equal((await read()).state,'ready');
+await db.query("UPDATE public.habits SET name='Renamed habit' WHERE id=$1",[h]);assert.equal((await read()).state,'pending');
+const renamed=await work({action:'claim'});await db.query("UPDATE private.habit_voice_jobs SET lease_until=now()-interval '1 second' WHERE id=$1",[renamed.job_id]);
+await assert.rejects(work({action:'fail',job_id:renamed.job_id,revision:renamed.revision,lease_token:renamed.lease_token,error_code:'generation_failed'}),/lease_expired/);
+for(let i=0;i<2;i++){const r=await work({action:'claim'});await work({action:'fail',job_id:r.job_id,revision:r.revision,lease_token:r.lease_token,error_code:'generation_failed'});}
+assert.equal((await read()).state,'failed');assert.equal((await work({action:'claim'})).state,'empty');
+await db.query('SET ROLE growth_voice_worker');await assert.rejects(db.query('SELECT * FROM public.children'));await db.query('RESET ROLE');
+for(const [text,expected] of [['整理书包。','8fa0d0db6ee5ee1d64357aa3b62e3a15a3ac074ff61fe1ebb2e8da4c0b73be05'],['  整理\n书包 ','78cd5525c3069adda880b2e100c60572dfd4ac2851abb35dc19552ac36b97a77'],['e\u0301','a53f47a4f99e9a80d9836d03b22eefcd60abb054c5b51d21303423a8eaedc392']]){assert.equal((await db.query('SELECT private.habit_voice_hash($1) h',[text])).rows[0].h,expected);}for(const t of ['\u00a0整理\ufeff书包\u3000','a\u0085b','a\u200bb','\u2028a\u2029']){assert.equal((await db.query('SELECT private.habit_voice_text($1) t',[t])).rows[0].t,t.normalize('NFC').trim().replace(/\s+/gu,' '));}console.log('PASS 3 Python/SQL hash vectors + 4 Unicode normalization vectors');console.log('PASS pending/cross-child/cross-family/lease/CAS/complete-replay/rename-cache/bounded-retry/worker-no-child-access');await db.query("DELETE FROM private.child_access_sessions WHERE browser_hash=$1",['a'.repeat(64)]);
+await assert.rejects(read(),/child_unlock_required/);
+console.log('PASS child unlock required and revocation');
+await db.end();

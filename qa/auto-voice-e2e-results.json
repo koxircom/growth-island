@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "actual_native_audio_starts": 2,
+  "actual_native_audio_ends": 2,
+  "ready_audio_from": "Windows generated WAV via real SSH into isolated PostgreSQL, real authenticated API",
+  "pending_audio": "exact Qwen prompt SHA verified in browser",
+  "checks": [
+    "ready playback",
+    "pending exact prompt",
+    "onended resets button",
+    "mute",
+    "unmount rejects late response"
+  ],
+  "subjective_listening": false
+}

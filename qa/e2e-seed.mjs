@@ -1,0 +1,12 @@
+import pg from 'pg';import {createHash} from 'node:crypto';
+const c=new pg.Client({connectionString:process.env.DATABASE_ADMIN_URL});await c.connect();
+const u='00000000-0000-4000-8000-000000000001',f='00000000-0000-4000-8000-000000000002',child='00000000-0000-4000-8000-000000000003',h='00000000-0000-4000-8000-000000000004';
+const sha=x=>createHash('sha256').update(x).digest('hex');
+await c.query("INSERT INTO auth.users(id,email,password_hash) VALUES($1,'voice-e2e@example.invalid','unused')",[u]);
+await c.query("INSERT INTO public.families(id,owner_id,name) VALUES($1,$2,'Synthetic voice e2e')",[f,u]);
+await c.query("INSERT INTO public.children(id,family_id,nickname) VALUES($1,$2,'Synthetic child')",[child,f]);
+await c.query("INSERT INTO public.habits(id,family_id,child_id,name) VALUES($1,$2,$3,'整理书包。')",[h,f,child]);
+await c.query("INSERT INTO auth.sessions(token_hash,user_id,expires_at) VALUES($1,$2,now()+interval '1 hour')",[sha('f'.repeat(64)),u]);
+await c.query("INSERT INTO private.child_credentials(child_id,family_id,password_hash,password_cipher) VALUES($1,$2,'fixture','fixture')",[child,f]);
+await c.query("INSERT INTO private.child_access_sessions(browser_hash,family_id,child_id,credential_version,expires_at) VALUES($1,$2,$3,1,now()+interval '1 hour')",[sha('a'.repeat(64)),f,child]);
+await c.end();

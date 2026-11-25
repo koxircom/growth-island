@@ -1,0 +1,26 @@
+services:
+  app-next:
+    extends:
+      file: /volume1/docker/growth-island/compose.yaml
+      service: app
+    profiles: [combined]
+    image: sha256:48ab2a61789d2ecd783a137486307bf7b4f7cf711fccf9ebcdefd253cd1a7e03
+    environment:
+      HOME_ACCESS_SOCKET: /run/growth-home/control.sock
+    volumes:
+      - /volume1/docker/growth-island/releases/20261123-tv-switch-combined/runtime:/app:ro
+      - /volume1/docker/growth-island/home-access/run:/run/growth-home:rw
+    labels:
+      org.koxir.growth-island.version: 1.0.4
+      org.koxir.growth-island.build: hHTw4jBhKOks_3bUFQE7i
+  tv-worker-next:
+    extends:
+      file: /volume1/docker/growth-island/deploy/compose.tv.yaml
+      service: tv-worker
+    profiles: [combined]
+    image: sha256:c469fbffcbb0086ddfb92598192d3e09eab25f2d81b9750a00f77f0910fed744
+    environment:
+      HOME_ACCESS_SOCKET: /run/growth-home/control.sock
+    volumes:
+      - /volume1/docker/growth-island/releases/20261123-tv-switch-combined/runtime:/app:ro
+      - /volume1/docker/growth-island/home-access/run:/run/growth-home:rw

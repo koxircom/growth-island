@@ -1,0 +1,18 @@
+[Unit]
+Description=Growth Island television network and media bridge
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Environment=HOME_ACCESS_SOCKET=/volume1/docker/growth-island/home-access/run/control.sock
+Environment=HOME_ACCESS_SOCKET_GID=1000
+Environment=HOME_ROUTER_KEY=/volume1/docker/growth-island/home-access/router_key
+Environment=HOME_ROUTER_KNOWN_HOSTS=/volume1/docker/growth-island/home-access/router_known_hosts
+ExecStart=/usr/bin/python3 /volume1/docker/growth-island/home-access/bridge.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

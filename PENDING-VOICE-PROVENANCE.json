@@ -1,0 +1,12 @@
+{
+  "state": "verified",
+  "text": "后台语音正在合成中。",
+  "engine": "qwen3-tts",
+  "reference_sha256": "d2799d22d920afd7a349bd665f7c020c8513c891f12ee035944cc4c16c1b4944",
+  "actual_playback_verified": true,
+  "subjective_listening_verified": false,
+  "url": "/audio/child-v7/habit-voice-pending.wav",
+  "sha256": "73537f114043b1b76b190ff48840cb123fc1abc7aea93a8ed124332279e2dea4",
+  "playback_scope": "native AudioBufferSourceNode start/end through isolated real component, not subjective listening",
+  "playback_report_sha256": "e197fae373456d2138a2af09802bd4d44997d4066b60ea66092809a14a22fbc8"
+}

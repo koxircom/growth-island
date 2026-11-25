@@ -1,0 +1,65 @@
+{
+  "test": "allocation-driver-host",
+  "exit": 0,
+  "result": "passed",
+  "inputs_sha256": {
+    "gi_allocation.c": "24fe1d0f681bf186721cc76ff34674cc39311b49c212977cc24ab6c24445c44b",
+    "gi_allocation.h": "f2e31b59777a2eff447fb6cd60685b8f6714bc5fe8a28aafcc537080c6f151ef",
+    "gi_allocation_native.c": "96dd50bd5ffaca28f1aae8e412efa870556e486f5fa7e69d90e13624223274f4",
+    "gi_allocation_native.h": "47cf3daf68028fdb95d263b68095e12e363ff6d50cd4cde11e5d19f949e0c5e7",
+    "gi_allocation_protocol.c": "81b43f2eb2ecb76ac5a626d06545fb4c2536aa02978e30d9d0a2351c7d54cd9a",
+    "gi_allocation_protocol.h": "3cbf4d9d05d8a6b17b835e3f82d3645a50886acb01bdab5cb480c0f279ff2232",
+    "test_allocation.c": "5ae0c77d14587b352a167fa2e6c03de373998c8af5a314038f23e744c3a0ac67"
+  },
+  "trace": {
+    "synthetic": true,
+    "growth_allocation": {
+      "state": {
+        "v": 1,
+        "console_id": "a123bcde",
+        "binding_id": "00000000-0000-4000-8000-000000000001",
+        "boot_id": "22222222-2222-4222-a222-222222222222",
+        "sample_sequence": 2,
+        "observed_at": 1794571200,
+        "session_id": "00000000-0000-4000-8000-000000000004",
+        "session_state": "unknown",
+        "granted_seconds": 1800,
+        "consumed_ns": "0",
+        "remaining_ns": "1800000000000",
+        "clock_trusted": true,
+        "native_verified": false,
+        "sequence": 2,
+        "reason": "unsupported",
+        "mac": "0be5fd14ec923d559e121130fff7476addf8ef88c21ef54841d18a424bdc79a3"
+      },
+      "receipt": {
+        "v": 1,
+        "action": "stop",
+        "console_id": "a123bcde",
+        "binding_id": "00000000-0000-4000-8000-000000000001",
+        "request_id": "00000000-0000-4000-8000-000000000005",
+        "session_id": "00000000-0000-4000-8000-000000000004",
+        "sequence": 2,
+        "request_hash": "ce5e0739759f879e71bca41c456b5826fb1cfd2149f12d20937aaab45b7c7a64",
+        "phase": "applied",
+        "session_state": "ended",
+        "granted_seconds": 1800,
+        "consumed_ns": "0",
+        "remaining_ns": "1800000000000",
+        "reason": "ok",
+        "mac": "dd00763a7dcdcaf449b1658e0931504b70ca0d708cdb73035ecd22533e41331b"
+      },
+      "control": {
+        "action": "restore",
+        "request_id": "00000000-0000-4000-8000-000000000012",
+        "boot_id": "22222222-2222-4222-a222-222222222222",
+        "command_hash": "54437ca88da19f453710b072c794517c59f19e137ae775a25b35b5dbd7e99be9",
+        "phase": "applied",
+        "reason": "ok",
+        "mac": "891e360c6a70f47ebaf8a858496f4c61986270c4030ea704f1327f667d488306"
+      }
+    }
+  },
+  "production_changed": false,
+  "hardware_changed": false
+}
