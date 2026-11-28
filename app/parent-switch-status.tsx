@@ -15,7 +15,8 @@ export function ParentSwitchStatus({token,timezone,dashboard}:{token:string;time
   try {
    const response=await fetch('/api/parent/switch-status',{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent_token:token})});
    if(!response.ok) throw new Error(response.status===401||response.status===403?'家长身份已过期，请重新解锁。':'记录读取失败，请稍后重试；没有向 Switch 发送指令。');
-   const result=await response.json();
+   const result=await response.json().catch(()=>null);
+   if(!result?.data) throw new Error('记录读取失败，请稍后重试；没有向 Switch 发送指令。');
    if(sequence.current===id) setData(result.data);
   } catch(e) { if(sequence.current===id) setError(e instanceof Error?e.message:'记录读取失败'); }
   finally {if(sequence.current===id)setLoading(false);}

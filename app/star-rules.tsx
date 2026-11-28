@@ -2,10 +2,11 @@
 import {FamilyRuleSettings} from "./family-rule-settings";
 import {ChildQuickSwitch} from "./child-quick-switch";
 import {RuleSpeaker} from './rule-speaker';
+import {SavingsVaultCard} from "./savings-vault-card";
 import {RULE_STREAK_TEXT,RULE_SAVINGS_TEXT,RULE_TIMING_REVIEW_TEXT,RULE_BASICS_TEXT} from '@/lib/child-audio-manifest';
 import {useState} from "react";
 import {Star,ShieldCheck,Undo2,Settings2} from "lucide-react";
-import {type Dashboard,type Child,balance,localDay} from "@/lib/model";
+import {type Dashboard,type Child,balance,localDay,formatTimezoneLabel} from "@/lib/model";
 import {latestStarRule,activeStarRule,starTimezonePreview,starDeductionRemaining,starKindLabel,type StarAdjustment} from "@/lib/star-rules";
 import {serverClock} from "@/lib/server-clock";
 type Mutate=(action:string,payload:Record<string,unknown>)=>Promise<any>;
@@ -25,8 +26,9 @@ export function ChildStarRules({data,child}:{data:Dashboard;child:Child}){
  return <section className="panel star-rules-child">
   <div className="panel-heading"><h3><Star size={20}/> 我的星星约定</h3><span className="small">只看自己的记录</span></div>
   <p>连续奖励：{daily?.streak_enabled?"已开启":"未开启"} · 存星奖励：{weekly?.savings_enabled?"已开启":"未开启"}</p>
+  <SavingsVaultCard data={data} child={child} today={localDay(data.family.timezone,current)}/>
   {(data.star_rule_transitions||[]).some(t=>t.child_id===child.id)&&<p className="small">家庭换了时区，连续记录重新开始；过渡中的未完整奖励周期不发奖。下面显示新的生效日。</p>}
-  {latest&&<p className="small">最新设置：连续规则 {latest.effective_day} 起，存星规则 {latest.effective_week} 起。规则时区 {latest.timezone}。</p>}
+  {latest&&<p className="small">最新设置：连续规则 {latest.effective_day} 起，存星规则 {latest.effective_week} 起。规则时区 {formatTimezoneLabel(latest.timezone)}。</p>}
   <details><summary>看看奖励怎么算</summary><RuleExplanation audio/></details>
   <p className="gentle-note"><RuleSpeaker label="生活与星星" text={RULE_BASICS_TEXT}/>{RULE_BASICS_TEXT}</p>
   {history.map(a=><div className="history-row" key={a.id}><strong>{starKindLabel[a.kind]} · {a.amount>0?"+":""}{a.amount} 星</strong><span>{a.reason}</span><small>{a.period_day}</small></div>)}
@@ -53,7 +55,7 @@ export function ParentStarRules({data,busy,mutate}:{data:Dashboard;busy:boolean;
    {(data.star_rule_transitions||[]).filter(t=>t.child_id===child.id).map(t=><p className="notice" key={t.id}>时区迁移：{t.old_timezone} → {t.new_timezone}。过渡中的未完整奖励周期不发奖，连续重新开始。新连续规则从 {t.new_day_start} 起，存星规则从 {t.new_week_start} 起。</p>)}
    <p className="small">修改家庭时区会明确迁移奖励规则：未完整周期不发奖，连续重新开始；旧完整周期按旧时区补结算。扣星额度设置立即生效，自动奖励开关按各自生效日执行。</p>
    {(data.star_rule_versions||[]).filter(r=>r.child_id===child.id).map(r=><div className="history-row" key={r.id}><strong>版本 {r.revision}</strong><span>连续 {r.streak_enabled?"开":"关"} · 存星 {r.savings_enabled?"开":"关"} · 每日最多扣 {r.deduction_limit}</span><small>{r.effective_day} / {r.effective_week} · {r.timezone}</small></div>)}
-   {(data.star_settlements||[]).filter(s=>s.child_id===child.id).slice(0,20).map(s=><div className="history-row" key={s.id}><span>{s.period_day} · {s.kind==="week"?"周结算":"日结算"}</span><span>{s.kind==="week"?"最低余额 "+(s.detail.minimum??"不适用")+" · 奖励 "+(s.detail.award??0):"当日结果已记录，不重复发奖"}</span></div>)}
+   {(data.star_settlements||[]).filter(s=>s.child_id===child.id).slice(0,20).map(s=><div className="history-row" key={s.id}><span>{s.period_day} · {s.kind==="week"?"周结算":"日结算"}</span><span>{s.kind==="week"?(s.detail.average!=null?"日均余额 "+s.detail.average:"最低余额 "+(s.detail.minimum??"不适用"))+" · 奖励 "+(s.detail.award??0):"当日结果已记录，不重复发奖"}</span></div>)}
    <p className="small">后台最近成功检查：{data.star_settler_last_success_at?new Date(data.star_settler_last_success_at).toLocaleString("zh-CN",{timeZone:latest?.timezone||data.family.timezone}):"尚无记录，请确认家庭服务器结算服务已运行"}。页面关闭后仍由服务器处理；离线期间的周期会在恢复后依次结算。</p>
   </details>
  </section>;

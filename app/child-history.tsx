@@ -7,7 +7,7 @@ import {useState} from "react";
 import {BookOpen,ChevronLeft} from "lucide-react";
 import {balance,checkinHabitName,formatDuration,localDay,newestFirst,redemptionName,type Dashboard,type Child} from "@/lib/model";
 
-const status:Record<string,string>={approved:"已确认",pending:"待家长确认",undone:"已撤销",rejected:"未通过",completed:"已完成",stopped:"已结束",cancelled:"已结束"};
+const status:Record<string,string>={approved:"已确认",pending:"待家长确认",undone:"已撤销",rejected:"未通过",completed:"已完成",stopped:"已结束",cancelled:"已撤销"};
 type Row={seq?:number|null;id:string;day:string;at:string;title:string;detail:string;status:string};
 export function ChildHistory({data,child,onChild,onBack}:{data:Dashboard;child:Child;onChild:(id:string)=>void;onBack:()=>void}){
  const [kind,setKind]=useState("habits"),[date,setDate]=useState(""),[page,setPage]=useState(0);
@@ -18,10 +18,13 @@ export function ChildHistory({data,child,onChild,onBack}:{data:Dashboard;child:C
  })):kind==="practice"?data.timers.filter(t=>t.child_id===child.id&&t.ended_at).map(t=>({
    id:t.id,day:day(t.started_at),at:t.started_at,title:t.kind==="focus"?"专注训练":"游戏约定",
    detail:formatDuration(t.actual_seconds||0),status:t.kind==="game"?(t.status==="completed"?"按时结束":"这次没做到，下次再试"):(t.status==="completed"?"完成目标":"已记录努力")
- })):kind==="rewards"?data.redemptions.filter(r=>r.child_id===child.id).map(r=>({
+ })):kind==="rewards"?data.redemptions.filter(r=>r.child_id===child.id).map(r=>{
+   const cancelled=Boolean(r.cancelled_at)||r.status==="cancelled";
+   return {
    id:r.id,day:day(r.created_at),at:r.created_at,title:redemptionName(r,data.rewards),
-   detail:r.cost+" 星星"+(r.status==="pending"?" · 已预留":r.status==="rejected"?" · 已退回":""),status:status[r.status]||"已记录"
- })): growthLedgerRows(data.star_ledger||[]).filter(g=>g.child_id===child.id).map(g=>({
+   detail:r.cost+" 星星"+(cancelled||r.status==="rejected"?" · 已退回":r.status==="pending"?" · 已预留":""),status:cancelled?"已撤销":status[r.status]||"已记录"
+   };
+ }): growthLedgerRows(data.star_ledger||[]).filter(g=>g.child_id===child.id).map(g=>({
    seq:g.posting_seq,id:g.id,day:day(g.created_at),at:g.created_at,
    title:ledgerDescription(data,g),
    detail:(g.amount>0?"+":"")+g.amount+" 星星 · "+(g.balance_after==null?"历史余额未记录":"余额 "+g.balance_after+" 星星"),

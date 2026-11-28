@@ -12,7 +12,7 @@ export function HabitRuleDialog({data,targets,audienceGroups,busy,mutate,close}:
  const [audienceMode,setAudienceMode]=useState(false);
  const [adopt,setAdopt]=useState<Record<string,string>>({});
  const [patch,setPatch]=useState<Partial<HabitRule>>(creating?initial:{}),[children,setChildren]=useState<string[]>(creating?data.children.map(c=>c.id):targets.map(t=>t.child_id)),[error,setError]=useState('');
- useEffect(()=>{dialog.current?.showModal();return()=>dialog.current?.close();},[]);
+ useEffect(()=>{const el=dialog.current;if(el&&!el.open)el.showModal();return()=>{if(el?.open)el.close();};},[]);
  const additions:string[]=[]; // Child association changes only run through explicit audienceMode.
  const savedRule={...(targets[0]?habitRule(targets[0]):initial),...patch};
  const matches=(id:string)=>data.habits.filter(h=>!h.archived_at&&h.child_id===id&&h.name.trim()===savedRule.name.trim());

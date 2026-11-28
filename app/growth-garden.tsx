@@ -1,5 +1,6 @@
 "use client";
 import {speakChildFeedback} from "@/lib/child-voice";
+import {CHILD_AUDIO} from "@/lib/child-audio-manifest";
 import { useState } from "react";
 import { Timer as TimerIcon, MessageCircle } from "lucide-react";
 import { gardenStage, type GrowthFeedback } from "@/lib/growth-feedback";
@@ -49,7 +50,7 @@ export function GrowthGarden({ child, done, rest, feedback, onFocus }: {
     </svg>
     <h3>{rest ? "今天，和小伙伴一起休息" : done > 0 ? "每一小步，都在悄悄开花" : "小芽已准备好，陪你慢慢来"}</h3>
     <p className="garden-message">{rest ? "休息也是照顾自己，不需要补满任务。" : done > 0 ? `今天已确认 ${done} 次小尝试。小花只是记录，不用追着它做任务。` : "先选一件容易开始的小事。不必一次做很多。"}</p>
-    <button className="text-button garden-talk" onClick={() => {const next=(question+1)%invitations.length;setQuestion(next);speakChildFeedback(invitations[next]);}}><MessageCircle size={17}/>和小伙伴聊一句</button>
+    <button className="text-button garden-talk" onClick={() => {const next=(question+1)%invitations.length;setQuestion(next);if(CHILD_AUDIO[invitations[next]])speakChildFeedback(invitations[next]);}}><MessageCircle size={17}/>和小伙伴聊一句</button>
     {question >= 0 && <p className="garden-question" role="status">{invitations[question]}<small>在心里想一想，或说给家人听，不用填写。</small></p>}
     <button className="secondary" onClick={onFocus}><TimerIcon size={17}/>开始一段专注</button>
     <small className="garden-footnote">每日小花 · 随今天已确认的记录变化 · 不消耗星星</small>

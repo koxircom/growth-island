@@ -5,7 +5,7 @@ type Props={childName:string;mode:Mode;onSubmit:(password:string)=>Promise<void>
 /** Passwords exist only in this mounted dialog. Never place them in the mutation journal. */
 export function ChildPasswordDialog({childName,mode,onSubmit,onClose}:Props){
  const [password,setPassword]=useState("");const [confirm,setConfirm]=useState("");const [busy,setBusy]=useState(false);const [error,setError]=useState("");const mounted=useRef(true);const gate=useRef(false);const dialog=useRef<HTMLDialogElement>(null);
- useEffect(()=>{mounted.current=true;dialog.current?.showModal();return()=>{mounted.current=false}},[]);
+ useEffect(()=>{mounted.current=true;const el=dialog.current;if(el&&!el.open)el.showModal();return()=>{mounted.current=false;if(el?.open)el.close();}},[]);
  useEffect(()=>{setPassword("");setConfirm("");setError("")},[mode,childName]);
  const pin=mode==="change"||mode==="parent-set";const setup=mode!=="unlock";const close=()=>{if(gate.current)return;setPassword("");setConfirm("");setError("");onClose()};
  const title=mode==="parent-set"?"设置孩子密码":mode==="setup"?"设置我的密码":mode==="change"?"修改密码":"解锁兑换";

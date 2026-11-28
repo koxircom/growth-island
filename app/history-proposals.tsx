@@ -8,7 +8,7 @@ export function ChildHistoryProposal({data,childId,day,busy,mutate}:Props&{child
  const trigger=useRef<HTMLButtonElement>(null);
  const dialog=useRef<HTMLDialogElement>(null);
  const emptyDescription=useId();
- useEffect(()=>{if(open) dialog.current?.showModal();},[open]);
+ useEffect(()=>{const el=dialog.current;if(open&&el&&!el.open)el.showModal();},[open]);
  const close=()=>dialog.current?.close();
  const habits=habitsAt(data,day).filter(h=>h.child_id===childId),pending=(data.history_proposals||[]).filter(p=>p.child_id===childId&&p.day===day&&p.status==='pending');const proposal=pending.find(p=>p.habit_id===habitId);const stale=Boolean(snapshot?(!proposal||proposal.id!==snapshot.id||proposal.revision!==snapshot.revision):proposal);const chosen=habits.find(h=>h.id===habitId);
  const choose=(id:string)=>{setHabit(id);const old=pending.find(p=>p.habit_id===id);setSnapshot(old?{id:old.id,revision:old.revision}:null);setCount(old?.desired_count??data.checkins.filter(c=>c.habit_id===id&&c.day===day&&c.status==='approved').length);setReason(old?.reason||'');setError('');};

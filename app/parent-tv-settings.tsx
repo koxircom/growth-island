@@ -1,5 +1,6 @@
 "use client";
-import {useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
+import {createRequestId} from '@/lib/mutation';
 import type {Dashboard} from '@/lib/model';
 export type TvPolicy={session_duration_min:number;max_sessions_per_day:number;cooldown_min:number;max_extensions:number};
 export type TvConfig={manual_block:boolean;schedules:{id:string;name:string;days:number[];start:string;end:string;enabled:boolean}[];workday:TvPolicy;weekend:TvPolicy};
@@ -9,13 +10,18 @@ export function ParentTvSettings({data,busy,mutate,token}:{data:Dashboard;busy:b
  const saved=data.tv_settings;
  const [device,setDevice]=useState(saved?.device_id??'');
  const [config,setConfig]=useState<TvConfig>(saved?.config??defaults);
+ const configHydrated=useRef(Boolean(saved?.config)),deviceHydrated=useRef(Boolean(saved?.device_id));
+ useEffect(()=>{
+  if(!configHydrated.current&&saved?.config){configHydrated.current=true;setConfig(saved.config);}
+  if(!deviceHydrated.current&&saved?.device_id){deviceHydrated.current=true;setDevice(saved.device_id);}
+ },[saved?.config,saved?.device_id]);
  const [message,setMessage]=useState('');
  const [opening,setOpening]=useState(false);
  const [accessMessage,setAccessMessage]=useState('');
  async function openHomeAccess(){
   if(opening)return;setOpening(true);setAccessMessage('正在开启并核对电视网络与 DLNA…');
   try{const response=await fetch('/api/parent/home-access',{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent_token:token})});
-   if(!response.ok)throw new Error();const {data:result}=await response.json();
+   if(!response.ok)throw new Error();const body=await response.json().catch(()=>null);if(!body?.data)throw new Error();const result=body.data;
    const network=result?.network==='open'?'规则已放行':'未确认';const dlna=result?.dlna==='open'?'已开启':'未确认';
    setAccessMessage(`电视网络：${network}；DLNA：${dlna}。`);
   }catch{setAccessMessage('未能确认开启结果，请稍后查看设备状态。');}finally{setOpening(false);}
@@ -28,7 +34,7 @@ export function ParentTvSettings({data,busy,mutate,token}:{data:Dashboard;busy:b
  <div className="tv-policy-grid">{(['workday','weekend'] as const).map(kind=><fieldset key={kind}><legend>{kind==='workday'?'工作日':'周末'}</legend>{([['session_duration_min','每轮最多（分钟）',1,1440],['max_sessions_per_day','每天最多（轮）',0,100],['cooldown_min','两轮间休息（分钟）',1,1440],['max_extensions','每轮最多追加（次）',0,100]] as const).map(([key,label,min,max])=><label key={key}>{label}<input type="number" required min={min} max={max} value={config[kind][key]} onChange={e=>setConfig({...config,[kind]:{...config[kind],[key]:Number(e.target.value)}})}/></label>)}</fieldset>)}</div>
  <h3>允许观看的时段</h3><p>没有启用的时段时保持锁定。缩短时段会立即重新评估当前观看。</p>
  {config.schedules.map((s,i)=><fieldset key={s.id}><legend>时段 {i+1}</legend><label><input type="checkbox" checked={s.enabled} onChange={e=>setConfig({...config,schedules:config.schedules.map((x,j)=>i===j?{...x,enabled:e.target.checked}:x)})}/>启用</label><div className="button-row"><button type="button" className="secondary" onClick={()=>setConfig({...config,schedules:config.schedules.map((x,j)=>i===j?{...x,days:[1,2,3,4,5,6,7]}:x)})}>全选星期</button><button type="button" className="secondary" onClick={()=>setConfig({...config,schedules:config.schedules.map((x,j)=>i===j?{...x,days:[]}:x)})}>清除星期</button></div><div className="tv-days">{['一','二','三','四','五','六','日'].map((d,k)=><label key={d}><input type="checkbox" checked={s.days.includes(k+1)} onChange={e=>setConfig({...config,schedules:config.schedules.map((x,j)=>i===j?{...x,days:e.target.checked?[...x.days,k+1]:x.days.filter(v=>v!==k+1)}:x)})}/>周{d}</label>)}</div>{(['start','end'] as const).map(key=><label key={key}>{key==='start'?'开始':'结束'}<input type="time" required value={s[key]} onChange={e=>setConfig({...config,schedules:config.schedules.map((x,j)=>i===j?{...x,[key]:e.target.value}:x)})}/></label>)}<button type="button" className="secondary" onClick={()=>setConfig({...config,schedules:config.schedules.filter((_,j)=>j!==i)})}>移除时段</button></fieldset>)}
- <button type="button" className="secondary" disabled={config.schedules.length>=50} onClick={()=>setConfig({...config,schedules:[...config.schedules,{id:crypto.randomUUID(),name:'观看时间',days:[1,2,3,4,5],start:'18:00',end:'20:00',enabled:false}]})}>添加时段</button><p>兑换只增加余额，不会自动延长观看。只有电视确认追加成功才计入次数。</p><button className="primary" disabled={busy||!saved?.device_id||!saved.config||saved.pending} type="submit">保存电视约定</button><p role="status">{message}</p></form></section>;
+ <button type="button" className="secondary" disabled={config.schedules.length>=50} onClick={()=>setConfig({...config,schedules:[...config.schedules,{id:createRequestId(),name:'观看时间',days:[1,2,3,4,5],start:'18:00',end:'20:00',enabled:false}]})}>添加时段</button><p>兑换只增加余额，不会自动延长观看。只有电视确认追加成功才计入次数。</p><button className="primary" disabled={busy||!saved?.device_id||!saved.config||saved.pending} type="submit">保存电视约定</button><p role="status">{message}</p></form></section>;
 }
 
 

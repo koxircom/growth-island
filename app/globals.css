@@ -3008,3 +3008,752 @@ h1.child-island-name{font-size:clamp(32px,4vw,52px);line-height:1.2;overflow-wra
  .child-earned-copy{gap:2px;font-size:13px}
  .child-today-earned strong{font-size:18px;padding:0}
 }
+
+/* UI Polish V1: layout rhythm, WCAG AA contrast, touch targets, mobile cards */
+body {
+  font-family:
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Noto Sans CJK SC",
+    "Noto Sans SC",
+    "Microsoft YaHei",
+    "微软雅黑",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+.child-progress strong,
+.reward-banner h2,
+.timer-number,
+.stat-card strong,
+.child-today-earned strong,
+.date-picker input {
+  font-variant-numeric: tabular-nums;
+}
+.brand {
+  min-height: 44px;
+}
+.brand small {
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: #64766e;
+}
+.nav-label,
+.small-label {
+  color: #64766e;
+}
+.child-card-top p,
+.kind-note,
+.footer,
+.footer > span,
+.reward-banner p {
+  color: #63736b;
+}
+.reward-banner {
+  color: #7a5c1c;
+}
+.reward-card p,
+.reward-star-progress {
+  color: #7b6024;
+}
+.child-card-footer {
+  color: #7b632d;
+  font-size: 12px;
+}
+.level-badge {
+  color: #7b632d;
+  border-color: #dfd6b3;
+  background: #f6f1dd;
+  font-size: 10px;
+}
+img.child-avatar-photo {
+  box-shadow: 0 0 0 3px #fff, 0 0 0 4.5px #dce8df;
+}
+.round-arrow {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+}
+.date-picker button {
+  min-width: 44px;
+  min-height: 44px;
+}
+.date-picker input {
+  min-height: 44px;
+  height: 44px;
+}
+.task-panel .task-text p {
+  font-size: 13px;
+  text-decoration: none;
+}
+
+/* Remove double scrollbar on 1280x800 & 1024x768 and fit Home child cards above fold */
+@media (min-width: 761px) {
+  .sidebar {
+    padding: 20px 18px 16px;
+    scrollbar-width: thin;
+  }
+  .nav-label {
+    margin: 16px 12px 8px;
+  }
+  .sidebar-children .nav-label {
+    margin-top: 16px;
+  }
+  .nav-item {
+    min-height: 44px;
+    padding: 9px 14px;
+    margin: 2px 0;
+  }
+  .child-link {
+    padding: 6px 8px;
+  }
+  .kind-note {
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  .sidebar-bottom {
+    padding-top: 8px;
+  }
+  .topbar {
+    height: 68px;
+    margin-bottom: 16px;
+  }
+  .heading {
+    margin-bottom: 16px;
+  }
+  .hero {
+    padding: 22px 28px;
+    min-height: 186px;
+    margin-bottom: 20px;
+  }
+  .section-title {
+    margin: 16px 0 12px;
+  }
+}
+
+@media (max-width: 1000px) {
+  .top-actions .icon-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Child Island primary CTA: cohesive forest-mint soft fill */
+.habit-check-actions .habit-check-action {
+  background: #e6f4ed;
+  border: 1.5px solid #67a38c;
+  color: #215746;
+  font-weight: 700;
+}
+.habit-check-actions .habit-check-action:hover:not(:disabled) {
+  background: #d8eee2;
+  border-color: #4b8977;
+}
+
+/* Rewards House: switcher spacing, card alignment, primary CTA hierarchy */
+.child-quick-switch + .heading {
+  margin-top: 18px;
+}
+.reward-banner {
+  padding: 18px 24px;
+  margin-bottom: 18px;
+}
+.time-wallet .wallet-card {
+  padding: 18px;
+}
+.reward-gallery > .reward-card > .reward-title {
+  min-height: 3em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.reward-gallery > .reward-card > .reward-star-progress {
+  margin-top: auto;
+  margin-bottom: 12px;
+  justify-content: center;
+}
+.reward-gallery .reward-card > button {
+  margin-top: 0;
+}
+.reward-gallery .reward-card > button.secondary:not([aria-disabled="true"]) {
+  background: #e6f4ed;
+  border: 1.5px solid #67a38c;
+  color: #215746;
+  font-weight: 600;
+}
+.reward-gallery .reward-card > button.secondary:not([aria-disabled="true"]):hover:not(:disabled) {
+  background: #d8eee2;
+  border-color: #4b8977;
+}
+
+/* Mobile (<= 600px): full-width child cards & compact 2-row habit cards */
+@media (max-width: 600px) {
+  .children-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .child-card {
+    padding: 18px;
+  }
+  .child-card-top {
+    flex-wrap: nowrap;
+    gap: 14px;
+  }
+  .child-card-top > div {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+    margin-top: 0;
+  }
+  .child-card-top p {
+    font-size: 12px;
+  }
+  .child-card-footer {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+  .mini-week > div > span {
+    width: 24px;
+    height: 24px;
+  }
+  .habit-drag-grip {
+    left: 4px;
+    top: 14px;
+    transform: none;
+    opacity: 0.4;
+  }
+  .task-panel .routine .task-row:has(.habit-title-voice) {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) 62px 44px;
+    column-gap: 8px;
+    row-gap: 6px;
+    align-items: center;
+    padding: 14px 14px 14px 20px;
+  }
+  .task-panel .routine .task-row > .task-icon {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    align-self: center;
+  }
+  .task-panel .routine .task-row > .task-text:has(> .habit-title-voice) {
+    display: contents;
+  }
+  .task-panel .routine .task-row .habit-title-voice > h3 {
+    grid-column: 2 / 4;
+    grid-row: 1;
+    padding-inline-end: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .task-panel .routine .task-row .habit-title-voice .rule-speaker {
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: end;
+    align-self: center;
+  }
+  .task-panel .routine .task-row > .task-text:has(> .habit-title-voice) > p {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: center;
+  }
+  .task-panel .routine .task-row > .habit-check-actions,
+  .task-panel .routine .task-row > .status-pill {
+    grid-column: 3 / 5;
+    grid-row: 2;
+    width: auto;
+    min-width: 104px;
+    justify-self: end;
+    align-self: center;
+  }
+  .task-panel .routine .task-row > .habit-check-actions:has(> .habit-check-action + .habit-check-status) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .task-panel .routine .task-row .habit-title-voice .habit-voice-error {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+}
+
+/* Child penalties page speaker alignment */
+.peer-penalty-title-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.peer-penalty-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.peer-penalty-row button.rule-speaker,
+.peer-penalty-title-row button.rule-speaker {
+  width: 44px;
+  min-width: 44px;
+  max-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  margin-inline: 0;
+}
+
+@media (max-width: 600px) {
+  .peer-penalties-heading {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .peer-penalties-heading > .child-quick-switch {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+  .peer-penalty-row {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    column-gap: 10px;
+    row-gap: 8px;
+    align-items: center;
+  }
+  .peer-penalty-row > .task-icon {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .peer-penalty-row > .task-detail {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .peer-penalty-row > .peer-penalty-actions {
+    grid-column: 2;
+    grid-row: 2;
+    justify-content: flex-end;
+    width: 100%;
+  }
+}
+
+
+/* Patrol Polish & Responsive Fixes (v1.0.5) */
+.sidebar {
+  overflow-x: hidden;
+}
+
+.brand > div {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.history-row .text-button,
+.history-row time {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1024px) {
+  .history-row {
+    flex-wrap: wrap;
+    row-gap: 6px;
+    column-gap: 10px;
+  }
+  .history-row > strong {
+    flex: 1 1 auto;
+    min-width: 120px;
+  }
+  .history-row > .text-button {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 1000px) {
+  .brand small {
+    font-size: 7.5px;
+    letter-spacing: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+  .footer {
+    font-size: 12px;
+    gap: 8px;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 960px) {
+  .children-grid.growth-comparison {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .voice-nav-feedback.is-visible {
+    left: 16px;
+    right: 16px;
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    max-width: none;
+    width: auto;
+  }
+  .toast {
+    bottom: calc(82px + env(safe-area-inset-bottom));
+  }
+  .review-batch-actions button {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .child-read-history .account-filters .secondary {
+    width: 100%;
+    align-self: stretch;
+    justify-content: center;
+  }
+}
+
+
+/* Earned Stars Stacked Chart & Tooltip (v1.0.6) */
+.earned-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 10px 0 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.earned-legend > span,
+.earned-tooltip-tags > span,
+.earned-detail-chips > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.earned-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.earned-trend-chart {
+  position: relative;
+  margin-top: 6px;
+}
+
+.earned-trend-chart svg {
+  margin-top: 0;
+  display: block;
+}
+
+.earned-bar-group {
+  cursor: pointer;
+  outline: none;
+}
+
+.earned-bar-group:focus-visible .earned-bar-hit {
+  stroke: #377b67;
+  stroke-width: 1.2;
+}
+
+.earned-tooltip {
+  position: absolute;
+  top: 2px;
+  transform: translateX(-50%);
+  z-index: 6;
+  pointer-events: none;
+  min-width: 176px;
+  max-width: min(260px, calc(100% - 12px));
+  padding: 9px 11px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid #d5e2d9;
+  box-shadow: 0 8px 22px rgba(24, 52, 39, 0.14);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.earned-tooltip-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.earned-tooltip-head strong {
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.earned-tooltip-head span {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.earned-tooltip-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e7eee8;
+  font-size: 11.5px;
+}
+
+.earned-tooltip-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.earned-tooltip-items li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.earned-tooltip-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.earned-tooltip-items strong {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.earned-tooltip-more {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.earned-status-card {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f6faf6;
+  border: 1px solid #e4ece6;
+}
+
+.earned-status-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+}
+
+.earned-status-head > p {
+  margin: 0;
+  font-size: 13.5px;
+}
+
+.earned-hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.earned-reset-btn {
+  font-size: 12px;
+  min-height: 28px;
+  padding: 2px 8px;
+}
+
+.earned-detail-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.earned-detail-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 8px 0 0;
+  border-top: 1px solid #e4ece6;
+  display: grid;
+  gap: 4px;
+  font-size: 12.5px;
+}
+
+.earned-detail-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.earned-detail-list li > span {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.earned-detail-list li > strong {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+
+/* Savings Vault, Arrival Banner, Drop Warning & Mobile Tooltip Polish (v1.0.7) */
+.savings-vault-card {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid #eedc9d;
+  background: linear-gradient(135deg, #fffdf4 0%, #fff7dc 100%);
+}
+
+.savings-vault-card.is-compact {
+  margin-top: 0;
+  padding: 14px 16px;
+}
+
+.savings-vault-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.savings-vault-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #8f6400;
+  font-size: 15px;
+}
+
+.savings-vault-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fef0b8;
+  border: 1px solid #edd072;
+  color: #7a5200;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.savings-arrived-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: #fef3c7;
+  border: 1px solid #f0cd5c;
+  color: #744d00;
+  font-size: 13px;
+}
+
+.savings-arrived-copy {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.savings-arrived-copy svg {
+  color: #e9b308;
+  flex-shrink: 0;
+}
+
+.savings-vault-metrics {
+  margin: 10px 0 8px;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+
+.savings-tiers {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.savings-tier {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 4px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid #e7dec0;
+  color: var(--muted);
+  font-size: 11.5px;
+  text-align: center;
+}
+
+.savings-tier strong {
+  font-size: 13px;
+  color: #7c6e46;
+}
+
+.savings-tier.is-reached {
+  background: #fef0b8;
+  border-color: #e9b308;
+  color: #6b4600;
+}
+
+.savings-tier.is-reached strong {
+  color: #8f5f00;
+}
+
+.savings-vault-tip {
+  margin: 8px 0 0;
+  color: #765c1b;
+}
+
+.savings-drop-warning {
+  margin: 12px 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fff9e6;
+  border: 1px solid #efd06b;
+  color: #6c4900;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.savings-drop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.savings-drop-warning p {
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .earned-tooltip {
+    display: none;
+  }
+}

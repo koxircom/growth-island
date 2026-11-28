@@ -1,7 +1,7 @@
 import type {ReactNode} from "react";
 /** Semantic pictures never modify saved task data. */
 export function habitPicture(name:string, fallback:string):string {
- const rules:[RegExp,string][]=[[/洗澡|淋浴|沐浴/,"bath"],[/上学|学校/,"school"],[/结束游戏|停止游戏|关闭游戏/,"game-stop"],[/写作业|写字/,"write"],[/专注|学习/,"focus"],[/睡|午休/,"sleep"],[/书包/,"bag"],[/玩具|书桌|收拾|整理/,"tidy"],[/看望|爷爷|奶奶|外公|外婆/,"family"],[/阅读|读书/,"read"],[/运动|户外|跑|跳|球/,"sport"]];
+ const rules:[RegExp,string][]=[[/洗澡|淋浴|沐浴/,"bath"],[/上学|学校/,"school"],[/结束游戏|停止游戏|关闭游戏/,"game-stop"],[/写作业|写字/,"write"],[/专注|学习/,"focus"],[/睡|午休/,"sleep"],[/书包/,"bag"],[/玩具|书桌|收拾|整理/,"tidy"],[/看望|爷爷|奶奶|外公|外婆/,"family"],[/阅读|读书/,"read"],[/运动|户外|跑|跳|球/,"sport"],[/复盘|爸爸|妈妈|聊天|总结/,"review"],[/吃饭|把饭吃完|餐|饭|座位/,"meal"],[/刷牙|洗脸|穿衣|洗漱|早起/,"morning"]];
  return rules.find(([re])=>re.test(name))?.[1]||({book:"read",moon:"sleep",backpack:"bag",bag:"bag",pencil:"write",timer:"focus",sun:"sport"} as Record<string,string>)[fallback]||fallback;
 }
 export function HabitArt({name,icon}:{name:string;icon:string}) {
@@ -18,6 +18,9 @@ export function HabitArt({name,icon}:{name:string;icon:string}) {
  sport:<><circle cx="28" cy="9" r="5" fill="#f4ba60"/><path d="m25 17-7 9 10 6-5 11m3-25 8 8h8M19 23H9m17 9 10 9"/><path d="M5 35h9m-7 6h6"/></>,
  focus:<><path fill="#fff9e9" d="M5 22h27v20H5z"/><path d="M18 23v19"/><circle cx="33" cy="15" r="11" fill="#91c3d2"/><path d="M33 8v7l5 3M30 2h6"/></>,
  "game-stop":<><path fill="#91c3d2" d="M11 17h22q6 0 9 18 0 8-8 1l-5-3H18l-6 3q-9 7-7-2 2-17 6-17z"/><path d="M13 23v9m-4-5h8"/><circle cx="32" cy="25" r="1"/><circle cx="36" cy="29" r="1"/><circle cx="34" cy="10" r="9" fill="#e9a79c"/><rect x="31" y="7" width="6" height="6" fill="#fff" stroke="none"/></>,
+ review:<><path fill="#fff9e9" d="M6 11a5 5 0 0 1 5-5h18a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H17l-7 6v-6H11a5 5 0 0 1-5-5z"/><path fill="#91c3d2" d="M18 27h19a5 5 0 0 1 5 5v6a5 5 0 0 1-5 5h-2v4l-5-4H18a5 5 0 0 1-5-5v-6a5 5 0 0 1 5-5z"/><path d="M13 13h14m-14 6h9"/><circle cx="39" cy="10" r="3.5" fill="#f4ba60"/></>,
+ meal:<><path fill="#fff9e9" d="M7 24h34c0 10-7 17-17 17S7 34 7 24z"/><path fill="#f4ba60" d="M11 24c2-4 7-6 13-6s11 2 13 6z"/><path d="M5 24h38M15 41h18M17 11q2-3 0-6m9 6q2-3 0-6m13 2-7 11m11-7-7 7"/></>,
+ morning:<><circle cx="34" cy="13" r="6.5" fill="#f4ba60"/><path d="M34 3v2m0 16v2M24 13h2m16 0h2M12 41V16a3 3 0 0 1 6 0v25z"/><path fill="#91c3d2" d="M9 12h10v7H9z"/><path fill="#fff9e9" d="M28 26q5 6 5 10a5 5 0 1 1-10 0q0-4 5-10z"/></>,
  };
  return <svg className="habit-picture" data-picture={kind} viewBox="0 0 48 48" width="38" height="38" fill="none" stroke="#41685e" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">{art[kind]||<path fill="#f4ba60" d="m24 5 6 12 13 2-10 10 2 14-11-7-12 7 3-14L5 19l13-2z"/>}</svg>;
 }

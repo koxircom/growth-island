@@ -176,6 +176,19 @@ export function checkinHabitName(d: Dashboard, c: Pick<Checkin, "habit_id" | "da
 export function redemptionName(r: Redemption, rewards: Reward[]) {
   return r.reward_name || rewards.find(x => x.id === r.reward_id)?.name || "家庭奖励";
 }
+const TIMEZONE_LABELS: Record<string, string> = {
+  "Asia/Shanghai": "北京时间",
+  "Asia/Hong_Kong": "香港时间",
+  "Asia/Taipei": "台北时间",
+  "Asia/Singapore": "新加坡时间",
+  "Asia/Tokyo": "东京时间",
+  "America/New_York": "纽约时间",
+  "America/Los_Angeles": "洛杉矶时间",
+  "Europe/London": "伦敦时间",
+};
+export function formatTimezoneLabel(timezone: string) {
+  return TIMEZONE_LABELS[timezone] || timezone;
+}
 export function localDay(tz = "Asia/Shanghai", date = new Date()) {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: tz,
@@ -371,6 +384,8 @@ export function safeError(e: unknown) {
     if (m.includes(code)) return text;
   if (/fetch|network|Failed to fetch/i.test(m))
     return "网络暂时不稳定，记录尚未确认。请联网后重试。";
+  if (/Unexpected token|not valid JSON|JSON\.parse/i.test(m))
+    return "家庭服务器暂时无法连接，请稍后重试。";
   return m;
 }
 

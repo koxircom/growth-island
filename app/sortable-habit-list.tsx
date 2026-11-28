@@ -4,14 +4,15 @@ import {DndContext,DragOverlay,MouseSensor,TouchSensor,KeyboardSensor,closestCen
 import {SortableContext,useSortable,verticalListSortingStrategy,sortableKeyboardCoordinates,arrayMove} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
 import {GripVertical} from "lucide-react";
+import {createRequestId} from "@/lib/mutation";
 import {habitCategory,type Habit,type HabitCategory} from "@/lib/model";
 type Order={ids:string[];token:string};
 type Orders=Record<HabitCategory,Order>;
 const interactive="button,a,input,textarea,select,[role=button],[contenteditable=true]";
 async function orderRequest(body:Record<string,unknown>,signal?:AbortSignal):Promise<Orders>{
  const response=await fetch("/api/habit-order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),signal});
- const result=await response.json();
- if(!response.ok||!result.data)throw new Error(result.error||"request_failed");
+ const result=await response.json().catch(()=>({}));
+ if(!response.ok||!result?.data)throw new Error(result?.error||"request_failed");
  return result.data;
 }
 function SortableRow({habit,disabled,children}:{habit:Habit;disabled:boolean;children:ReactNode}){
@@ -76,7 +77,7 @@ export function SortableHabitList({habits,childId,disabled,children}:{habits:Hab
   // Apply the same visible-slot permutation as the server, preserving hidden habits.
   let i=0;const included=new Set(ids);
   setOrders({...orders,[category]:{...orders[category],ids:orders[category].ids.map(id=>included.has(id)?ids[i++]:id)}});
-  try{const value=await orderRequest({action:"save",child_id:childId,category,ids,token:before[category].token,request_id:crypto.randomUUID()});if(g===generation.current){setOrders(value);setNotice("顺序已保存");}}
+  try{const value=await orderRequest({action:"save",child_id:childId,category,ids,token:before[category].token,request_id:createRequestId()});if(g===generation.current){setOrders(value);setNotice("顺序已保存");}}
   catch(error){if(g!==generation.current)return;setOrders(before);
    // A lost response may have committed. Read authoritative order; never blindly retry the write.
    try{const value=await orderRequest({action:"read",child_id:childId});if(g===generation.current){setOrders(value);setNotice(error instanceof Error&&error.message==="habit_order_conflict"?"顺序已在其他页面更新，已同步，请重新拖动。":"保存结果未确认，已同步服务器顺序，请检查后重试。");}}

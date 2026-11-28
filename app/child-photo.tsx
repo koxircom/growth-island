@@ -16,8 +16,8 @@ export function PhotoUpload({child,token,onSaved}:{child:Child;token:string;onSa
   lock.current=true;setBusy(true);setError("");
   try{
    const response=await fetch(`/api/children/${child.id}/photo`,{method:"POST",headers:{"Content-Type":file.type,"X-Parent-Token":token},body:file,credentials:"same-origin"});
-   const value=await response.json();
-   if(!response.ok)throw new Error(value.error);
+   const value=await response.json().catch(()=>null);
+   if(!response.ok)throw new Error(value?.error||"upload_failed");
    onSaved();setError("头像已保存");
   }catch(e){setError((e as Error).message==="parent_required"?"家长身份已过期，请重新解锁。":"上传结果未确认，请刷新检查头像后再重试。");}
   finally{lock.current=false;setBusy(false);if(input.current)input.current.value="";}

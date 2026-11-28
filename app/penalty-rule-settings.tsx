@@ -1,13 +1,14 @@
 "use client";
 import {useEffect,useRef,useState} from 'react';
 import {Plus,ShieldCheck} from 'lucide-react';
+import {createRequestId} from '@/lib/mutation';
 import type {PenaltyRule} from '@/lib/penalty-rules';
 type Draft={rule_id:string|null;expected_revision:number;name:string;description:string;stars:number;enabled:boolean};
 const blank:Draft={rule_id:null,expected_revision:0,name:'',description:'',stars:1,enabled:true};
 export function PenaltyRuleSettings({token,busy}:{token:string;busy:boolean}){
  const [rules,setRules]=useState<PenaltyRule[]>([]),[draft,setDraft]=useState<Draft|null>(null),[error,setError]=useState(''),[saving,setSaving]=useState(false),[unknown,setUnknown]=useState(false),[reload,setReload]=useState(0);const lock=useRef(false);
  const dialog=useRef<HTMLDialogElement>(null);
- useEffect(()=>{if(draft)dialog.current?.showModal();},[Boolean(draft)]);
+ useEffect(()=>{const el=dialog.current;if(draft&&el&&!el.open)el.showModal();},[Boolean(draft)]);
  const [readStatus,setReadStatus]=useState<'loading'|'success'|'error'>('loading');
  const loading=readStatus==='loading';
  useEffect(()=>{
@@ -15,8 +16,9 @@ export function PenaltyRuleSettings({token,busy}:{token:string;busy:boolean}){
    setReadStatus('loading');
    fetch('/api/penalty-rules',{cache:'no-store',signal:abort.signal}).then(async r=>{
      if(!r.ok)throw Error();
-     const body=await r.json();
+     const body=await r.json().catch(()=>null);
      if(abort.signal.aborted)return;
+     if(!body?.data)throw Error();
      setRules(body.data);
      setReadStatus('success');
    }).catch(()=>{
@@ -26,7 +28,7 @@ export function PenaltyRuleSettings({token,busy}:{token:string;busy:boolean}){
    });
    return()=>abort.abort();
  },[reload]);
- async function save(){if(!draft||lock.current||unknown)return;lock.current=true;setSaving(true);setError('');try{const r=await fetch('/api/penalty-rules',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request_id:crypto.randomUUID(),parent_token:token,payload:draft})});const body=await r.json();if(!r.ok){if(body.error==='penalty_rule_conflict'){setError('事项已被修改，请取消后刷新列表再编辑。');setUnknown(true);return;}throw Error();}setRules(body.data);setDraft(null);}catch{setUnknown(true);setError('保存结果未确认，请取消后刷新核对，勿重复提交。');}finally{setSaving(false);lock.current=false;}}
+ async function save(){if(!draft||lock.current||unknown)return;lock.current=true;setSaving(true);setError('');try{const r=await fetch('/api/penalty-rules',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request_id:createRequestId(),parent_token:token,payload:draft})});const body=await r.json().catch(()=>({}));if(!r.ok){if(body?.error==='penalty_rule_conflict'){setError('事项已被修改，请取消后刷新列表再编辑。');setUnknown(true);return;}throw Error();}setRules(body.data);setDraft(null);}catch{setUnknown(true);setError('保存结果未确认，请取消后刷新核对，勿重复提交。');}finally{setSaving(false);lock.current=false;}}
  return <section className="panel penalty-rule-settings"><div className="panel-heading"><h2>一起遵守的小约定</h2><button className="primary" disabled={busy||saving||loading} onClick={()=>{setDraft({...blank});setUnknown(false);setError('');}}><Plus size={17}/>创建惩罚</button></div><p className="small">全家共用事项；扣星时选择孩子，账目互不合并。</p>
  {loading&&<p role="status">正在读取…</p>}{error&&!draft&&<p role="alert">{error}<button className="text-button" disabled={saving} onClick={()=>{setDraft(null);setUnknown(false);setReload(n=>n+1);setError('');}}>刷新核对</button></p>}
  {readStatus==='success'&&!rules.length&&<p className="history-empty">还没有配置惩罚事项。</p>}

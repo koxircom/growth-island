@@ -18,7 +18,7 @@ export function ParentAccountBook({data,token,busy,mutate}:{data:Dashboard;token
   const n=++seq.current;setLoading(true);setError('');
   try{const res=await fetch('/api/parent/account-book',{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent_token:token,child_id:child||null,unit,page})});
    if(!res.ok)throw new Error(res.status===401||res.status===403?'家长身份已过期，请重新解锁。':'账本读取失败，请重试。');
-   const result=await res.json();if(n===seq.current)setLoaded({key,book:result.data});
+   const result=await res.json().catch(()=>null);if(!result?.data)throw new Error('账本读取失败，请重试。');if(n===seq.current)setLoaded({key,book:result.data});
   }catch(e){if(n===seq.current)setError(safeError(e));}finally{if(n===seq.current)setLoading(false);}
  },[token,child,unit,page,key]);
  useEffect(()=>{void refresh();return()=>{seq.current++;};},[refresh,data]);

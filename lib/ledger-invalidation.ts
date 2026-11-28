@@ -1,8 +1,9 @@
+import {createRequestId} from "./mutation";
 type Notice={type:"ledger-invalidated";scope:string;id:string};
 let channel:BroadcastChannel|undefined;
 function ledgerChannel(){if(typeof BroadcastChannel==="undefined")return;try{return channel??=new BroadcastChannel("growth-ledger")}catch{return}}
-export function publishLedgerInvalidation(scope:string){if(!/^[a-f0-9]{64}$/.test(scope))return;ledgerChannel()?.postMessage({type:"ledger-invalidated",scope,id:crypto.randomUUID()} satisfies Notice);}
-export function publishChildScopeChange(){ledgerChannel()?.postMessage({type:"ledger-scope-changed",id:crypto.randomUUID()});}
+export function publishLedgerInvalidation(scope:string){if(!/^[a-f0-9]{64}$/.test(scope))return;ledgerChannel()?.postMessage({type:"ledger-invalidated",scope,id:createRequestId()} satisfies Notice);}
+export function publishChildScopeChange(){ledgerChannel()?.postMessage({type:"ledger-scope-changed",id:createRequestId()});}
 export function subscribeLedgerInvalidation(scope:string,refresh:()=>void){
  const connection=ledgerChannel();if(!connection)return ()=>{};
  const seen=new Set<string>();let timer:ReturnType<typeof setTimeout>|undefined;

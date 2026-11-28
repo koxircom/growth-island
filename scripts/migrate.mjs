@@ -46,7 +46,7 @@ try {
   paths.push("db/037_habit_category.sql");
   paths.push("db/038_checkin_undo_without_redemption_unlock.sql", "db/041_habit_auto_voice.sql", "db/042_habit_order.sql", "db/043_family_star_rules.sql", "db/044_peer_penalty.sql");
   paths.push("db/045_switch_two_consoles.sql");
-  paths.push("db/046_child_history_checkin.sql", "db/047_child_autonomy.sql");
+  paths.push("db/046_child_history_checkin.sql", "db/047_child_autonomy.sql", "db/048_star_savings_avg_tiers.sql");
   for (const name of paths) {
     const sql = await readFile(new URL("../" + name, import.meta.url), "utf8");
     const checksum = createHash("sha256").update(sql).digest("hex");

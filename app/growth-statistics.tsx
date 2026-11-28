@@ -3,7 +3,7 @@ import {useEffect,useMemo,useState} from 'react';
 import {BarChart,Bar,CartesianGrid,XAxis,YAxis,Tooltip,Legend,ResponsiveContainer} from 'recharts';
 import {CalendarDays,RefreshCw,Star,Timer,Gift} from 'lucide-react';
 import {ChildQuickSwitch} from './child-quick-switch';
-import type {Dashboard} from '@/lib/model';
+import {type Dashboard,formatTimezoneLabel} from '../lib/model';
 type Stats={unallocated_tv_count?:number;timezone:string;period:string;start:string;end:string;as_of:string;buckets:{date:string;child_id:string;category:string;seconds:number;count:number}[];stars:{date:string;child_id:string;source_type:string;amount:number;count:number}[];redemptions:{date:string;child_id:string;status:string;kind:string;count:number;cost:number;seconds:number}[];balances:{child_id:string;balance:number}[];notes:string[]};
 const titles:Record<string,string>={focus:'专注计时',game:'游戏练习计时',tv_confirmed:'电视已确认消耗'};
 const sources:Record<string,string>={checkin:'习惯获得',undo:'撤销打卡',redemption:'兑换消费',refund:'兑换退回',manual_bonus:'家长鼓励',manual_reversal:'误加纠正',star_adjustment:'约定调整',star_deduction:'约定扣星',star_reversal:'调整撤销',star_streak:'连续奖励',star_savings:'存星奖励'};
@@ -15,7 +15,7 @@ export function GrowthStatistics({data,today}:{data:Dashboard;today:string}){
  const [stats,setStats]=useState<Stats|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState('');
  useEffect(()=>{const controller=new AbortController();setLoading(true);setError('');setStats(null);
   const params=new URLSearchParams({period,anchor});if(child)params.set('child_id',child);
-  fetch('/api/statistics?'+params,{cache:'no-store',signal:controller.signal}).then(async r=>{const v=await r.json();if(!r.ok||!v.data)throw new Error('统计暂时无法读取，请重试。');setStats(v.data);}).catch(e=>{if(e.name!=='AbortError')setError(e.message);}).finally(()=>{if(!controller.signal.aborted)setLoading(false);});return()=>controller.abort();
+  fetch('/api/statistics?'+params,{cache:'no-store',signal:controller.signal}).then(async r=>{const v=await r.json().catch(()=>null);if(!r.ok||!v?.data)throw new Error('统计暂时无法读取，请重试。');setStats(v.data);}).catch(e=>{if(e.name!=='AbortError')setError(e.message);}).finally(()=>{if(!controller.signal.aborted)setLoading(false);});return()=>controller.abort();
  },[period,anchor,child,retry]);
  return <><div className="heading growth-view-heading"><div><span className="eyebrow">各自成长，一起被看见</span><h1>两座小岛，两种精彩</h1><p>看各自的完成比例与变化，不比较星星多少。</p></div><ChildQuickSwitch children={data.children} value={child} onChange={setChild} allLabel="合并" label="统计所属孩子"/></div><section className="panel island-statistics" aria-label="成长统计">
   <div className="panel-heading"><div><span className="eyebrow">把每一点成长看清楚</span><h2><CalendarDays size={22}/>成长统计</h2></div><button className="secondary" aria-label="刷新统计" onClick={()=>setRetry(n=>n+1)} disabled={loading}><RefreshCw size={17}/>刷新</button></div>
@@ -36,7 +36,7 @@ function ChildStatistics({data,stats,childId}:{data:Dashboard;stats:Stats;childI
  const view=useMemo(()=>statisticsView(stats),[stats]);
  return <section className="stats-child-section" aria-label={(data.children.find(c=>c.id===childId)?.nickname||"孩子")+"的统计"}><h3>{data.children.find(c=>c.id===childId)?.nickname}</h3>
   <>
-   <p className="small">{stats.start.slice(0,10)} 至 {stats.end.slice(0,10)}（结束日期不含） · {stats.timezone} · 统计读取于 {new Date(stats.as_of).toLocaleString('zh-CN',{timeZone:stats.timezone})}</p>
+   <p className="small">{stats.start.slice(0,10)} 至 {stats.end.slice(0,10)}（结束日期不含） · {formatTimezoneLabel(stats.timezone)} · 统计读取于 {new Date(stats.as_of).toLocaleString('zh-CN',{timeZone:stats.timezone})}</p>
    <div className="stats-cards">
     <article><Star size={20}/><span>本期获得</span><strong>{view.income} 星</strong><small>习惯、家长鼓励、连续与存星奖励</small></article>
     <article><Gift size={20}/><span>本期兑换消费</span><strong>{view.spent} 星</strong><small>退回另计 {view.refunds} 星</small></article>

@@ -73,4 +73,9 @@ describe("authentication response ordering", () => {
     expect(listener).toHaveBeenLastCalledWith("SIGNED_IN", session("b"));
     expect(listener.mock.calls.filter(call => call[1]?.user.id === "a")).toHaveLength(0);
   });
+  it("throws service_unavailable when proxy returns non-JSON 502 HTML", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(new Response("<html>502 Bad Gateway</html>", { status: 502, headers: { "Content-Type": "text/html" } })));
+    const { rpc } = await import("./client");
+    await expect(rpc("get_dashboard")).rejects.toThrow("service_unavailable");
+  });
 });

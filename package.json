@@ -1,6 +1,6 @@
 {
   "name": "growth-island",
-  "version": "1.0.4",
+  "version": "1.0.7",
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",

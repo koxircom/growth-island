@@ -21,12 +21,14 @@ async function request(path: string, body?: unknown) {
     headers: body === undefined ? {} : { "Content-Type": "application/json" },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
-  const value = await response.json();
-  if (response.ok && value.clock) serverClock.observe(value.clock, sent);
+  let value: any = null;
+  try { value = await response.json(); } catch { value = null; }
+  if (response.ok && value?.clock) serverClock.observe(value.clock, sent);
   if (!response.ok) {
     if (response.status === 401 && path.startsWith("/api/rpc/") && path !== "/api/rpc/unlock_parent" && epoch === authEpoch) emit(null);
-    throw new Error(value.error || "service_unavailable");
+    throw new Error(value?.error || "service_unavailable");
   }
+  if (!value || typeof value !== "object") throw new Error("service_unavailable");
   return value;
 }
 async function synchronizeCookie() {

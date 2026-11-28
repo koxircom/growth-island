@@ -17,8 +17,9 @@ export function AutoHabitSpeaker({id,childId,name,parentToken}:Props){
   let timedOut=false;const timeout=setTimeout(()=>{timedOut=true;controller.abort()},10000);
   try{
    const r=await fetch("/api/habit-voice",{method:"POST",cache:"no-store",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({habit_id:id,child_id:childId,parent_token:parentToken||null}),signal:controller.signal});
-   const v=await r.json();if(own!==version.current||document.hidden)return;
+   const v=await r.json().catch(()=>({}));if(own!==version.current||document.hidden)return;
    if(!r.ok){setMessage(r.status===401||r.status===403?"请先解锁当前孩子，再播放语音。":"语音暂时无法加载，请稍后再试。");return;}
+   if(!v?.data)throw Error("invalid_response");
    if(v.data.text!==name.normalize("NFC").trim().replace(/\s+/gu," "))throw Error("changed");
    if(v.data.state==="ready"){
     if(!play){setMessage("语音已准备好，点击喇叭播放。");return;}

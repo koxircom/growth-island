@@ -96,6 +96,9 @@ import {
   weekday,
 } from "@/lib/model";
 import { ChildAvatar, PhotoUpload } from "./child-photo";
+import { SavingsVaultCard } from "./savings-vault-card";
+import { redemptionSavingsImpact, SAVINGS_DROP_WARNING_VOICE } from "@/lib/savings-interest";
+import { APP_VERSION } from "@/lib/version";
 import { Animal, Island } from "./art";
 import { GrowthGarden } from "./growth-garden";
 import { checkinFeedback, type GrowthFeedback } from "@/lib/growth-feedback";
@@ -136,6 +139,7 @@ export default function App() {
     [parentToken, setParentToken] = useState(""),
     [parentUntil, setParentUntil] = useState(0),
     [showUnlock, setShowUnlock] = useState(false),
+    [unlockError, setUnlockError] = useState(""),
     [modal, setModal] = useState<{ kind: string; item?: any } | null>(null),
     [feedback, setFeedback] = useState<GrowthFeedback | null>(null),
     [online, setOnline] = useState(true);
@@ -145,6 +149,9 @@ export default function App() {
   const snapshotVersion = useRef(0), previousToday = useRef(""), unlockVersion = useRef(0);
   const lock = useRef(false),
     reqs = useRef<Record<string, string>>({});
+  useEffect(() => {
+    setUnlockError("");
+  }, [showUnlock]);
   const load = useCallback(async () => {
     if (!configured || lock.current) return;
     const version = ++snapshotVersion.current;
@@ -311,7 +318,11 @@ export default function App() {
         setData(d);
         setDashboardLoaded(true);
         delete reqs.current[k];
-        const redeemed = action === "redeem" ? d.redemptions.find(r => r.reward_id === payload.reward_id && r.child_id === payload.child_id) : null;
+        const redeemed = action === "redeem"
+          ? (d.redemptions.find(r => r.request_id === id)
+            || newestFirst(d.redemptions.filter(r => r.reward_id === payload.reward_id && r.child_id === payload.child_id), r => r.created_at)[0]
+            || null)
+          : null;
         const redeemedReward = redeemed ? d.rewards.find(r => r.id === redeemed.reward_id) : null;
         const switchRedeem = !!redeemedReward && !!d.switch_settings?.enabled && redeemedReward.kind === "device_time" && redeemedReward.device_id === d.switch_settings.device_id;
         const tvRedeem = !!redeemedReward && redeemedReward.kind === "device_time" && redeemedReward.device_id === d.tv_settings?.device_id;
@@ -939,11 +950,12 @@ export default function App() {
                       className="secondary"
                       onClick={() => {
                         if (balance(data, current.id) < r.cost) { speakChildFeedback("星星还不够，慢慢积累，不着急哦。"); return; }
-                        if (r.kind === "device_time") {
+                        const impact = redemptionSavingsImpact(data, current.id, today, r.cost);
+                        if (r.kind === "device_time" && !impact.dropsTier) {
                           void mutate("redeem", { child_id: current.id, reward_id: r.id });
                           return;
                         }
-                        speakChildFeedback("先看看需要多少星星，确认后再提交愿望哦。");
+                        speakChildFeedback(impact.dropsTier ? SAVINGS_DROP_WARNING_VOICE : "先看看需要多少星星，确认后再提交愿望哦。");
                         setModal({ kind: "redeem", item: r });
                       }}
                     >
@@ -1000,7 +1012,7 @@ export default function App() {
         )}
         <footer className="footer">
           <Leaf size={15} />
-          成长小岛 · v1.0.4 · 让成长回到每一个温暖的日常
+          成长小岛 · v{APP_VERSION} · 让成长回到每一个温暖的日常
           <span>只记录必要信息 · 数据属于你的家庭</span>
         </footer>
       </main>
@@ -1033,6 +1045,7 @@ export default function App() {
             onSubmit={async (e) => {
               e.preventDefault();
               setBusy(true);
+              setUnlockError("");
               const generation = authGeneration.current;
               const attempt = ++unlockVersion.current;
               const pin = String(new FormData(e.currentTarget).get("pin"));
@@ -1052,9 +1065,10 @@ export default function App() {
                 setShowUnlock(false);
                 setPage(unlockDestination.current);
                 unlockDestination.current = "parent";
+                setUnlockError("");
                 setError("");
               } catch (e) {
-                if (generation === authGeneration.current) setError(safeError(e));
+                if (generation === authGeneration.current) setUnlockError(safeError(e));
               } finally {
                 if (generation === authGeneration.current) setBusy(false);
               }
@@ -1077,14 +1091,16 @@ export default function App() {
           <p className="small">
             解锁约 30 分钟后自动失效。孩子无需登录，请不要分享家长密码。
           </p>
-          {error && <p className="error">{error}</p>}
+          {unlockError && <p role="alert" className="error">{unlockError}</p>}
         </Dialog>
       )}
       {modal && (
         <Editor
+          key={`${modal.kind}:${modal.item?.id || "new"}`}
           modal={modal}
           data={data}
           current={current}
+          today={today}
           selectedDay={selectedDay}
           busy={busy}
           error={error}
@@ -1175,7 +1191,7 @@ function AuthShell({ children }: { children: React.ReactNode }) {
 function Login() {
  const [busy,setBusy]=useState(false),[message,setMessage]=useState("");
  const [setup,setSetup]=useState<{configured:boolean;open:boolean}|null>(null);
- useEffect(()=>{fetch("/api/auth/setup",{cache:"no-store"}).then(r=>{if(!r.ok)throw Error();return r.json()}).then(setSetup).catch(()=>setMessage("暂时无法连接，请刷新重试。"));},[]);
+ useEffect(()=>{fetch("/api/auth/setup",{cache:"no-store"}).then(async r=>{const v=await r.json().catch(()=>null);if(!r.ok||!v)throw Error();return v;}).then(setSetup).catch(()=>setMessage("暂时无法连接，请刷新重试。"));},[]);
  const first=setup && !setup.configured;
  return <AuthShell>
  <span className="eyebrow">欢迎来到家庭小岛</span>
@@ -1234,7 +1250,8 @@ function Dialog({
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   useEffect(() => {
-    ref.current?.showModal();
+    const el = ref.current;
+    if (el && !el.open) el.showModal();
   }, []);
   return (
     <dialog ref={ref} onCancel={close} className="dialog" aria-labelledby={titleId}>
@@ -1492,7 +1509,7 @@ function GrowthCards({
     </div>
   );
 }
-function Trend({data,child,today,days}:{data:Dashboard;child:Child;today:string;days:number}) {return <><EarnedStarsTrend data={data} child={child} today={today} days={days}/><BalanceStarsTrend data={data} child={child} today={today} days={days}/></>;}
+function Trend({data,child,today,days}:{data:Dashboard;child:Child;today:string;days:number}) {return <><SavingsVaultCard data={data} child={child} today={today} compact/><EarnedStarsTrend data={data} child={child} today={today} days={days}/><BalanceStarsTrend data={data} child={child} today={today} days={days}/></>;}
 function TimerView({
   error,
   child,
@@ -2223,6 +2240,7 @@ function Editor({
   modal,
   data,
   current,
+  today,
   selectedDay,
   busy,
   error,
@@ -2233,6 +2251,7 @@ function Editor({
   modal: { kind: string; item?: any };
   data: Dashboard;
   current?: Child;
+  today?: string;
   selectedDay: string;
   busy: boolean;
   error: string;
@@ -2240,6 +2259,8 @@ function Editor({
   close: () => void;
 }) {
   const { kind, item: i = {} } = modal;
+  const effectiveToday = today || selectedDay;
+  const savingsImpact = kind === "redeem" && current ? redemptionSavingsImpact(data, current.id, effectiveToday, Number(i.cost || 0)) : null;
   const isBoundSwitchReward = kind === "redeem" && i.kind === "device_time" && !!data.switch_settings?.enabled && i.device_id === data.switch_settings.device_id;
   const [saveError, setSaveError] = useState("");
   const [rewardSuggestion, setRewardSuggestion] = useState("");
@@ -2662,10 +2683,26 @@ function Editor({
             <div className="reward-confirm">
               <Gift size={35} />
               <div className="reward-title"><h3>{i.name}</h3><RuleSpeaker label={i.name} text={rewardExplanation(i,{tv:data.tv_settings?.device_id,switch:data.switch_settings?.enabled?data.switch_settings.device_id:null})}/></div>
-              <p>{i.cost} 颗星星 · {isBoundSwitchReward ? "确认兑换后累加Switch余额" : i.kind === "device_time" && i.device_id === data.tv_settings?.device_id ? "确认后时间自动到账" : "提交后等待家长确认"}</p>
+              <p>{i.cost} 颗星星 · {isBoundSwitchReward ? "确认兑换后累加Switch余额" : i.kind === "device_time" ? "确认后时间自动到账" : "提交后等待家长确认"}</p>
             </div>
+            {savingsImpact?.dropsTier && (
+              <div className="savings-drop-warning" role="note">
+                <div className="savings-drop-head">
+                  <strong>存星利息提醒</strong>
+                  <RuleSpeaker label="存星利息提醒" text={SAVINGS_DROP_WARNING_VOICE} />
+                </div>
+                <p>
+                  这次兑换后余额会降到 <strong>{savingsImpact.afterBalance}</strong> 星
+                  {savingsImpact.crossedThreshold ? `（低于 ${savingsImpact.crossedThreshold} 星档位）` : ""}，
+                  {savingsImpact.lostThisWeek > 0
+                    ? `本周下周一（${savingsImpact.payoutDay.slice(5)}）预计少领 ${savingsImpact.lostThisWeek} 颗存星利息`
+                    : `下周存星利息预计少领 ${savingsImpact.lostNextWeek} 颗星`}
+                  。要现在换，还是等周一领完利息再换？
+                </p>
+              </div>
+            )}
             <p className="small">
-              {isBoundSwitchReward ? "确认兑换后扣除星星并累加Switch余额，不会立即启动；开始使用时还会单独确认发送多少分钟到主机。" : i.kind === "device_time" && i.device_id === data.tv_settings?.device_id ? "确认后扣除星星，时间累加到你的电视可用余额。点击开始观看才使用时间，仍需遵守允许时段和冷却约定。每次重新确认都会再次扣星并充值。" : "星星会先预留。如果家长暂不安排，星星会自动退回。每次重新确认都会创建一笔新的兑换，并再次预留星星。"}
+              {isBoundSwitchReward ? "确认兑换后扣除星星并累加Switch余额，不会立即启动；开始使用时还会单独确认发送多少分钟到主机。" : i.kind === "device_time" ? "确认后扣除星星，时间累加到你的可用余额。准备好后再开始使用，仍需遵守允许时段和冷却约定。每次重新确认都会再次扣星并充值。" : "星星会先预留。如果家长暂不安排，星星会自动退回。每次重新确认都会创建一笔新的兑换，并再次预留星星。"}
             </p>
           </>
         )}
@@ -2701,7 +2738,7 @@ function Editor({
             {busy
               ? "正在保存…"
               : kind === "redeem"
-                ? isBoundSwitchReward ? "确认兑换" : "提交愿望"
+                ? isBoundSwitchReward || i.kind === "device_time" ? "确认兑换" : "提交愿望"
                 : kind.startsWith("delete")
                   ? "确认移除"
                   : "保存"}
